@@ -1,0 +1,30 @@
+# ============================================================
+# ARCHIVE ONLY — not used at runtime.
+#
+# 仿真和真机的 T_world_base 现在都只读：
+#
+#   fr_control/config/stage4_config.yaml
+#   robot.base_pose
+#
+# 改安装高度 / 侧装角度：改那一份 YAML，不要改本文件。
+# real_bringup.launch.py 和 Gazebo 都不再读取这里。
+# ============================================================
+
+# 下面只记录当初如何从 FAIRINO WebApp 反推出四元数。
+
+fairino_installation:
+
+  # WebApp:
+  #   Base Tilt     =  90 deg
+  #   Base Rotation = -135 deg
+  #
+  # R_world_base = Ry(90 deg) * Rz(-135 deg)
+
+  base_tilt_deg: 90.0
+  base_rotation_deg: -135.0
+
+  orientation_xyzw:
+    x: -0.6532814824381882
+    y: 0.2705980500730985
+    z: -0.6532814824381883
+    w: 0.2705980500730986

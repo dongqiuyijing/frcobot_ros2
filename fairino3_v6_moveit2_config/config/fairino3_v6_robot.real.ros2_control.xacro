@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro
+      name="fairino3_v6_robot_real_ros2_control"
+      params="initial_positions_file">
+
+    <xacro:property
+        name="initial_positions"
+        value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
+
+
+    <!-- ======================================================= -->
+    <!-- REAL FR3: only j1 ~ j6                                  -->
+    <!-- ======================================================= -->
+
+    <ros2_control name="FR3RealSystem" type="system">
+
+      <hardware>
+        <plugin>fairino_hardware/FairinoHardwareInterface</plugin>
+      </hardware>
+
+      <joint name="j1">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+      </joint>
+
+      <joint name="j2">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+      </joint>
+
+      <joint name="j3">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+      </joint>
+
+      <joint name="j4">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+      </joint>
+
+      <joint name="j5">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+      </joint>
+
+      <joint name="j6">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+      </joint>
+
+    </ros2_control>
+
+  </xacro:macro>
+
+</robot>

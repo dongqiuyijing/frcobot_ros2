@@ -1,16 +1,15 @@
-# This config file is used by ros2_control
 controller_manager:
   ros__parameters:
-    update_rate: 100  # Hz
+    # FairinoHardwareInterface 中 ServoJ 的 cmdT = 0.008 s，
+    # 因此真机控制周期设为 125 Hz。
+    update_rate: 125
 
     fairino3_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
-    gripper_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
-
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
+
 
 fairino3_controller:
   ros__parameters:
@@ -21,16 +20,9 @@ fairino3_controller:
       - j4
       - j5
       - j6
+
     command_interfaces:
-      - position
-    state_interfaces:
       - position
 
-gripper_controller:
-  ros__parameters:
-    joints:
-      - gripper_joint
-    command_interfaces:
-      - position
     state_interfaces:
       - position

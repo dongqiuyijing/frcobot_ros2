@@ -1,0 +1,276 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--
+    HKV TG-9801 二指平行夹爪（来自 ros2_hkv_gripper 的网格与运动学）。
+
+    坐标约定：
+    - 单位：xyz 为米，rpy 为弧度。
+    - gripper_base_link 的 +z 指向夹爪前方（离开法兰），开合沿局部 ±x。
+    - gripper_joint = 0 为张开，= gripper_closed_position 为闭合。
+      该关节表示闭合行程，不是剩余指间距；左右滑块以 0.5 / -0.5 mimic 对称运动。
+
+    安装：
+    - FR3 wrist3_link 法兰接触面在局部 z=0.100 m，xy 中心为原点。
+    - 夹爪安装面经 base_body 网格 origin z=0.0615 对齐后，位于 gripper_base_link 的 z=0。
+    - 因此默认把夹爪原点放在法兰面上：xyz="0 0 0.100"，贴紧且对中。
+  -->
+
+  <xacro:macro name="hkv_mesh" params="file">
+    <geometry>
+      <mesh
+          filename="package://fairino_description/meshes/hkv_gripper/${file}"
+          scale="0.001 0.001 0.001"/>
+    </geometry>
+  </xacro:macro>
+
+  <xacro:macro name="hkv_box_inertia" params="mass sx sy sz">
+    <inertia
+        ixx="${mass * (sy*sy + sz*sz) / 12.0}"
+        ixy="0"
+        ixz="0"
+        iyy="${mass * (sx*sx + sz*sz) / 12.0}"
+        iyz="0"
+        izz="${mass * (sx*sx + sy*sy) / 12.0}"/>
+  </xacro:macro>
+
+  <xacro:macro
+      name="hkv_gripper"
+      params="parent mount_xyz:='0 0 0.100' mount_rpy:='0 0 0' gripper_closed_position:=0.1">
+
+    <xacro:property name="closed_pos" value="${float(gripper_closed_position)}"/>
+    <xacro:property name="half_travel" value="${closed_pos / 2.0}"/>
+
+    <material name="hkv_metal">
+      <color rgba="0.58 0.58 0.58 1"/>
+    </material>
+    <material name="hkv_silicone">
+      <color rgba="0.1882 0.1882 0.1882 1"/>
+    </material>
+
+
+    <!-- 夹爪主体。visual / collision 使用同一网格，避免外观与碰撞不一致。 -->
+    <link name="gripper_base_link">
+      <visual>
+        <origin xyz="0 0 0.0615" rpy="0 0 0"/>
+        <xacro:hkv_mesh file="base_body.stl"/>
+        <material name="hkv_silicone"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0.0615" rpy="0 0 0"/>
+        <xacro:hkv_mesh file="base_body.stl"/>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0.037" rpy="0 0 0"/>
+        <mass value="0.45"/>
+        <xacro:hkv_box_inertia mass="0.45" sx="0.160" sy="0.071" sz="0.074"/>
+      </inertial>
+    </link>
+
+    <joint name="gripper_mount_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="gripper_base_link"/>
+      <origin xyz="${mount_xyz}" rpy="${mount_rpy}"/>
+    </joint>
+
+
+    <link name="rail_155">
+      <visual>
+        <origin xyz="0 0 0.067" rpy="0 0 0"/>
+        <xacro:hkv_mesh file="rail_155.stl"/>
+        <material name="hkv_metal"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0.067" rpy="0 0 0"/>
+        <xacro:hkv_mesh file="rail_155.stl"/>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0.0694" rpy="0 0 0"/>
+        <mass value="0.04"/>
+        <xacro:hkv_box_inertia mass="0.04" sx="0.155" sy="0.007" sz="0.005"/>
+      </inertial>
+    </link>
+
+    <joint name="base_2_rail" type="fixed">
+      <parent link="gripper_base_link"/>
+      <child link="rail_155"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+
+    <link name="slider_r">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:hkv_mesh file="slider.stl"/>
+        <material name="hkv_metal"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:hkv_mesh file="slider.stl"/>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0.00485" rpy="0 0 0"/>
+        <mass value="0.03"/>
+        <xacro:hkv_box_inertia mass="0.03" sx="0.024" sy="0.017" sz="0.0065"/>
+      </inertial>
+    </link>
+
+    <link name="slider_l">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:hkv_mesh file="slider.stl"/>
+        <material name="hkv_metal"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:hkv_mesh file="slider.stl"/>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0.00485" rpy="0 0 0"/>
+        <mass value="0.03"/>
+        <xacro:hkv_box_inertia mass="0.03" sx="0.024" sy="0.017" sz="0.0065"/>
+      </inertial>
+    </link>
+
+
+    <link name="finger_r">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:hkv_mesh file="finger.stl"/>
+        <material name="hkv_silicone"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:hkv_mesh file="finger.stl"/>
+      </collision>
+      <inertial>
+        <origin xyz="0.00225 0 0.03585" rpy="0 0 0"/>
+        <mass value="0.05"/>
+        <xacro:hkv_box_inertia mass="0.05" sx="0.0285" sy="0.040" sz="0.0717"/>
+      </inertial>
+    </link>
+
+    <link name="finger_l">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:hkv_mesh file="finger.stl"/>
+        <material name="hkv_silicone"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:hkv_mesh file="finger.stl"/>
+      </collision>
+      <inertial>
+        <origin xyz="0.00225 0 0.03585" rpy="0 0 0"/>
+        <mass value="0.05"/>
+        <xacro:hkv_box_inertia mass="0.05" sx="0.0285" sy="0.040" sz="0.0717"/>
+      </inertial>
+    </link>
+
+
+    <!-- 虚拟子连杆，仅用于把 gripper_joint 做成可驱动的棱柱关节。 -->
+    <link name="gripper_gap_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.001"/>
+        <inertia
+            ixx="1e-8"
+            ixy="0"
+            ixz="0"
+            iyy="1e-8"
+            iyz="0"
+            izz="1e-8"/>
+      </inertial>
+    </link>
+
+    <joint name="gripper_joint" type="prismatic">
+      <parent link="rail_155"/>
+      <child link="gripper_gap_link"/>
+      <origin xyz="0 0 0.067" rpy="0 0 0"/>
+      <axis xyz="1 0 0"/>
+      <limit
+          lower="0"
+          upper="${closed_pos}"
+          effort="1000.0"
+          velocity="0.5"/>
+      <dynamics damping="0.1" friction="0.0"/>
+    </joint>
+
+    <joint name="rail_2_slider_l" type="prismatic">
+      <parent link="rail_155"/>
+      <child link="slider_l"/>
+      <origin xyz="-0.06545 0 0.067" rpy="0 0 0"/>
+      <axis xyz="1 0 0"/>
+      <limit
+          lower="0"
+          upper="${half_travel}"
+          effort="1000.0"
+          velocity="0.5"/>
+      <dynamics damping="0.1" friction="0.0"/>
+      <mimic joint="gripper_joint" multiplier="0.5" offset="0.0"/>
+    </joint>
+
+    <joint name="rail_2_slider_r" type="prismatic">
+      <parent link="rail_155"/>
+      <child link="slider_r"/>
+      <origin xyz="0.06545 0 0.067" rpy="0 0 0"/>
+      <axis xyz="1 0 0"/>
+      <limit
+          lower="-${half_travel}"
+          upper="0"
+          effort="1000.0"
+          velocity="0.5"/>
+      <dynamics damping="0.1" friction="0.0"/>
+      <mimic joint="gripper_joint" multiplier="-0.5" offset="0.0"/>
+    </joint>
+
+    <joint name="slider_2_finger_r" type="fixed">
+      <parent link="slider_r"/>
+      <child link="finger_r"/>
+      <origin xyz="0 0 0.008" rpy="0 0 3.1415927"/>
+    </joint>
+
+    <joint name="slider_2_finger_l" type="fixed">
+      <parent link="slider_l"/>
+      <child link="finger_l"/>
+      <origin xyz="0 0 0.008" rpy="0 0 0"/>
+    </joint>
+
+
+    <!--
+      TCP 放在两指工作区中部：滑块 z=0.067 + 指根 0.008 + 指长一半 0.036。
+      指尖约在 z=0.147；规划点若要贴指尖，把下面的 z 改为 0.147。
+    -->
+    <link name="gripper_tcp"/>
+
+    <joint name="gripper_tcp_joint" type="fixed">
+      <parent link="gripper_base_link"/>
+      <child link="gripper_tcp"/>
+      <origin xyz="0 0 0.111" rpy="0 0 0"/>
+    </joint>
+
+
+    <!-- 夹指表面摩擦，供 Gazebo 接触使用；MoveIt 会忽略这些标签。 -->
+    <gazebo reference="finger_l">
+      <mu1>1.2</mu1>
+      <mu2>1.2</mu2>
+      <kp>1e6</kp>
+      <kd>1.0</kd>
+      <minDepth>0.001</minDepth>
+    </gazebo>
+    <gazebo reference="finger_r">
+      <mu1>1.2</mu1>
+      <mu2>1.2</mu2>
+      <kp>1e6</kp>
+      <kd>1.0</kd>
+      <minDepth>0.001</minDepth>
+    </gazebo>
+    <gazebo reference="gripper_base_link">
+      <mu1>0.6</mu1>
+      <mu2>0.6</mu2>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>

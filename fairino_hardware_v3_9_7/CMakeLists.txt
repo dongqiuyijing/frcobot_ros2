@@ -136,6 +136,6 @@ endif()
 
 #export
 ament_export_targets(fairino_hardware HAS_LIBRARY_TARGET)
-ament_export_dependencies(ament_cmake rclcpp hardware_interface pluginlib rclcpp_lifecycle)
+ament_export_dependencies(ament_cmake rclcpp hardware_interface pluginlib rclcpp_lifecycle fairino_msgs)
 
 ament_package()

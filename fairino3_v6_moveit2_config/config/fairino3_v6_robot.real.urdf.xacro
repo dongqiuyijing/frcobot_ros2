@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="fairino3_v6_robot">
+
+  <xacro:arg
+      name="initial_positions_file"
+      default="initial_positions.yaml"/>
+
+
+  <!-- FR3 robot -->
+  <xacro:include
+      filename="$(find fairino_description)/urdf/fairino3_v6.urdf"/>
+
+
+  <!-- HKV TG-9801 gripper model -->
+  <xacro:include
+      filename="$(find fairino_description)/urdf/hkv_gripper.xacro"/>
+
+  <xacro:hkv_gripper
+      parent="wrist3_link"
+      mount_rpy="0 0 ${pi/4}"/>
+
+
+  <!-- REAL ros2_control -->
+  <xacro:include
+      filename="fairino3_v6_robot.real.ros2_control.xacro"/>
+
+  <xacro:fairino3_v6_robot_real_ros2_control
+      initial_positions_file="$(arg initial_positions_file)"/>
+
+</robot>

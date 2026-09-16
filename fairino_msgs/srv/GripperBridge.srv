@@ -1,0 +1,14 @@
+string command
+int32 gripper_id
+int32 position
+int32 velocity
+int32 force
+int32 max_time_ms
+int32 block
+int32 gripper_type
+float64 rot_num
+int32 rot_vel
+int32 rot_torque
+---
+int32 error_code
+string message
