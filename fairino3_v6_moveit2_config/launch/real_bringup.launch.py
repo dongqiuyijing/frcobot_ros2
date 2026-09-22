@@ -354,6 +354,12 @@ def generate_launch_description():
                 "allow_trajectory_execution": True,
             },
         ],
+        # URDF 里有 gripper_joint，真机 /joint_states 不发布它。
+        # MoveIt 每秒打一次 WARN，不影响机械臂控制，这里只压掉这条日志。
+        ros_arguments=[
+            "--log-level",
+            "moveit_ros.planning_scene_monitor.planning_scene_monitor:=error",
+        ],
     )
 
 
